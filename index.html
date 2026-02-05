@@ -1,10 +1,67 @@
 <!DOCTYPE html>
-<html>
-<body style="margin:0;background:black" onclick="v.muted=false; v.play();">
-  <video id="v" autoplay muted playsinline loop
-    style="width:100vw;height:100vh;object-fit:cover">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Auto Video + Text</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+
+    #text {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      color: white;
+      font-size: 6vw; /* BIG BIG FONT */
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: black;
+      word-break: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <video id="v" autoplay muted playsinline>
     <source src="https://raw.githubusercontent.com/ggboismmjaamegamo/gg/refs/heads/main/.github/workflows/Untitled%20video%20-%20Made%20with%20Clipchamp.mp4"
-            type="video/mp4">
+            type="video/mp4" type="video/mp4">
   </video>
+
+  <div id="text">
+    ago-unwatched.gl.joinmc.link
+  </div>
+
+  <script>
+    const video = document.getElementById("v");
+    const text = document.getElementById("text");
+
+    // enable sound on first tap (browser rule)
+    document.body.addEventListener("click", () => {
+      video.muted = false;
+      video.play();
+    });
+
+    video.onended = () => {
+      video.style.display = "none";
+      text.style.display = "flex";
+    };
+  </script>
+
 </body>
 </html>
