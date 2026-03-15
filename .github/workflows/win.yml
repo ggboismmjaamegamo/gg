@@ -1,21 +1,28 @@
-name: Windows RDP
+name: Windows-RDP
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 360
 
     steps:
-      - name: Start RDP
-        run: |
-          echo "Windows machine started"
+    - name: Enable RDP
+      run: |
+        net user runneradmin Password123!
+        net localgroup administrators runneradmin /add
+        reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
+    - name: Show RDP Info
+      run: |
+        echo "USERNAME: GOD OF GAMERZ"
+        echo "PASSWORD: GOD OF GAMERZ"
+        ipconfig
 
-
-
-
-- name: Keep alive
-  run: |
-    echo "RDP running"
-    timeout /t 21600
+    - name: Keep VM Alive
+      run: |
+        echo "VM running for 6 hours"
+        timeout /t 21600
