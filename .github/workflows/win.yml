@@ -10,3 +10,12 @@ jobs:
       - name: Start RDP
         run: |
           echo "Windows machine started"
+
+
+
+
+
+- name: Keep alive
+  run: |
+    echo "RDP running"
+    timeout /t 21600
