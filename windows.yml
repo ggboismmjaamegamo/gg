@@ -1,0 +1,16 @@
+name: Windows RDP
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Download CRD
+      run: |
+        curl -L -o crd.msi https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi
+        msiexec /i crd.msi /quiet /norestart
+
+    - name: Start Remote Desktop
+      run: |
+        echo "Setup Chrome Remote Desktop manually with your code"
