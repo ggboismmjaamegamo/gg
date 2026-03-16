@@ -13,31 +13,31 @@ jobs:
       - name: Enable RDP
         shell: pwsh
         run: |
-          net user gamer Gamer@12345 /add
+          net user gamer P@ssw0rd123! /add
           net localgroup administrators gamer /add
           reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Download Ngrok
+      - name: Download ngrok
         shell: pwsh
         run: |
           Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
           Expand-Archive ngrok.zip
 
-      - name: Configure Ngrok
+      - name: Set ngrok token
         shell: pwsh
         run: |
           .\ngrok\ngrok.exe config add-authtoken YOUR_NGROK_TOKEN
 
-      - name: Start Ngrok Tunnel
+      - name: Start ngrok
         shell: pwsh
         run: |
           Start-Process .\ngrok\ngrok.exe -ArgumentList "tcp 3389"
 
-      - name: Show RDP Address
+      - name: Wait for tunnel
         shell: pwsh
         run: |
-          Start-Sleep 10
+          Start-Sleep 20
           Invoke-RestMethod http://127.0.0.1:4040/api/tunnels
 
       - name: Keep VM Alive
