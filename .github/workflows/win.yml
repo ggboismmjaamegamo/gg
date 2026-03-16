@@ -18,7 +18,8 @@ jobs:
           echo "Go to https://remotedesktop.google.com/headless"
           echo "Copy the Windows command and paste it in the next step."
 
-      - name: Keep VM Running
-        run: |
-          Write-Host "VM running for 6 hours"
-          Start-Sleep -Seconds 21600
+  - name: Keep VM Alive
+  shell: pwsh
+  run: |
+    Write-Host "VM running for 6 hours"
+    Start-Sleep -Seconds 21600
