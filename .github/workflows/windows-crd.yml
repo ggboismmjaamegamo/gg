@@ -1,4 +1,4 @@
-name: Windows-RDP-Ngrok
+name: Windows-RDP-ngrok
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ jobs:
         run: |
           net user gamer P@ssw0rd123! /add
           net localgroup administrators gamer /add
-          reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
       - name: Download ngrok
@@ -24,26 +24,20 @@ jobs:
           Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
           Expand-Archive ngrok.zip
 
-      - name: Set ngrok token
+      - name: Add ngrok token
         shell: pwsh
         run: |
-          .\ngrok\ngrok.exe config add-authtoken YOUR_NGROK_TOKEN
+          .\ngrok\ngrok.exe config add-authtoken 34CVEs1yX3NU5P08FasZjvv5371_KreNKCTDy1ZS54hZr8VY
 
-      - name: Start ngrok
+      - name: Start ngrok tunnel
         shell: pwsh
         run: |
-          Start-Process .\ngrok\ngrok.exe -ArgumentList "tcp 3389"
+          .\ngrok\ngrok.exe tcp 3389
 
-      - name: Wait for tunnel
+      - name: Keep VM alive
         shell: pwsh
         run: |
-          Start-Sleep 20
-          Invoke-RestMethod http://127.0.0.1:4040/api/tunnels
-
-      - name: Keep VM Alive
-        shell: pwsh
-        run: |
-          Write-Host "Windows VM running..."
+          Write-Host "Windows cloud PC running..."
           $end = (Get-Date).AddMinutes(120)
           while((Get-Date) -lt $end){
               Start-Sleep -Seconds 60
