@@ -1,4 +1,4 @@
-name: Windows-RDP-ngrok
+name: Windows-RDP-Playit
 
 on:
   workflow_dispatch:
@@ -18,21 +18,15 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Download ngrok
+      - name: Download Playit
         shell: pwsh
         run: |
-          Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
-          Expand-Archive ngrok.zip
+          Invoke-WebRequest https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-amd64.exe -OutFile playit.exe
 
-      - name: Add ngrok token
+      - name: Start Playit tunnel
         shell: pwsh
         run: |
-          .\ngrok\ngrok.exe config add-authtoken 34CVEs1yX3NU5P08FasZjvv5371_KreNKCTDy1ZS54hZr8VY
-
-      - name: Start ngrok tunnel
-        shell: pwsh
-        run: |
-          .\ngrok\ngrok.exe tcp 3389
+          .\playit.exe
 
       - name: Keep VM alive
         shell: pwsh
