@@ -1,4 +1,4 @@
-name: Windows-MeshCentral-HTTPS
+name: Windows-RDP-Ngrok
 
 on:
   workflow_dispatch:
@@ -6,14 +6,9 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    timeout-minutes: 360
+    timeout-minutes: 120
 
     steps:
-
-      - name: Prepare Windows
-        shell: pwsh
-        run: |
-          Write-Host "Preparing Windows VM"
 
       - name: Enable RDP
         shell: pwsh
@@ -23,38 +18,33 @@ jobs:
           reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Install Node.js
+      - name: Download Ngrok
         shell: pwsh
         run: |
-          Invoke-WebRequest https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi -OutFile node.msi
-          Start-Process msiexec.exe -ArgumentList "/i node.msi /quiet /norestart" -Wait
+          Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
+          Expand-Archive ngrok.zip
 
-      - name: Install MeshCentral
+      - name: Configure Ngrok
         shell: pwsh
         run: |
-          npm install meshcentral
+          .\ngrok\ngrok.exe config add-authtoken YOUR_NGROK_TOKEN
 
-      - name: Start MeshCentral
+      - name: Start Ngrok Tunnel
         shell: pwsh
         run: |
-          Start-Process node -ArgumentList ".\node_modules\meshcentral"
+          Start-Process .\ngrok\ngrok.exe -ArgumentList "tcp 3389"
 
-      - name: Download Cloudflare Tunnel
+      - name: Show RDP Address
         shell: pwsh
         run: |
-          Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
-
-      - name: Start HTTPS Tunnel
-        shell: pwsh
-        run: |
-          Write-Host "Starting Cloudflare Tunnel..."
-          .\cloudflared.exe tunnel --url http://localhost:4430
+          Start-Sleep 10
+          Invoke-RestMethod http://127.0.0.1:4040/api/tunnels
 
       - name: Keep VM Alive
         shell: pwsh
         run: |
-          Write-Host "VM running for about 6 hours"
-          $end = (Get-Date).AddHours(6)
+          Write-Host "Windows VM running..."
+          $end = (Get-Date).AddMinutes(120)
           while((Get-Date) -lt $end){
               Start-Sleep -Seconds 60
           }
