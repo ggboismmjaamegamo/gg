@@ -9,6 +9,12 @@ jobs:
     timeout-minutes: 360
 
     steps:
+
+      - name: Prepare Windows
+        shell: pwsh
+        run: |
+          Write-Host "Preparing Windows VM"
+
       - name: Install Chrome Remote Desktop
         shell: pwsh
         run: |
@@ -23,14 +29,8 @@ jobs:
       - name: Start HTTPS Tunnel
         shell: pwsh
         run: |
-          Start-Process -NoNewWindow -FilePath .\cloudflared.exe -ArgumentList "tunnel --url http://localhost:3389"
-
-      - name: Show HTTPS Link
-        shell: pwsh
-        run: |
-          Write-Host "Wait 20 seconds for Cloudflare tunnel..."
-          Start-Sleep 20
-          Write-Host "HTTPS tunnel should now be active."
+          Write-Host "Starting Cloudflare Tunnel..."
+          .\cloudflared.exe tunnel --url http://localhost:3389
 
       - name: Keep VM Alive
         shell: pwsh
