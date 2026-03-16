@@ -1,4 +1,4 @@
-name: Windows-Web-Desktop
+name: Windows-Web-HTTP
 
 on:
   workflow_dispatch:
@@ -10,10 +10,15 @@ jobs:
 
     steps:
 
+      - name: Prepare Windows VM
+        shell: pwsh
+        run: |
+          Write-Host "Preparing Windows VM"
+
       - name: Enable RDP
         shell: pwsh
         run: |
-          net user gamer gamer123 /add
+          net user gamer Gamer@12345 /add
           net localgroup administrators gamer /add
           reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
@@ -23,19 +28,21 @@ jobs:
         run: |
           Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
 
-      - name: Start Web Gateway
+      - name: Start HTTP Server
         shell: pwsh
         run: |
-          python -m http.server 8080
+          Start-Process python -ArgumentList "-m http.server 8080"
 
-      - name: Start HTTPS Tunnel
+      - name: Start Cloudflare HTTPS Tunnel
         shell: pwsh
         run: |
+          Write-Host "Starting Cloudflare Tunnel..."
           .\cloudflared.exe tunnel --url http://localhost:8080
 
       - name: Keep VM Alive
         shell: pwsh
         run: |
+          Write-Host "VM running for about 6 hours"
           $end = (Get-Date).AddHours(6)
           while((Get-Date) -lt $end){
               Start-Sleep -Seconds 60
