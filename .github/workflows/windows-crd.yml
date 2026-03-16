@@ -1,4 +1,4 @@
-name: Windows-Web-HTTP
+name: Windows-MeshCentral-HTTPS
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ jobs:
 
     steps:
 
-      - name: Prepare Windows VM
+      - name: Prepare Windows
         shell: pwsh
         run: |
           Write-Host "Preparing Windows VM"
@@ -23,21 +23,32 @@ jobs:
           reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
+      - name: Install Node.js
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://nodejs.org/dist/v20.11.1/node-v20.11.1-x64.msi -OutFile node.msi
+          Start-Process msiexec.exe -ArgumentList "/i node.msi /quiet /norestart" -Wait
+
+      - name: Install MeshCentral
+        shell: pwsh
+        run: |
+          npm install meshcentral
+
+      - name: Start MeshCentral
+        shell: pwsh
+        run: |
+          Start-Process node -ArgumentList ".\node_modules\meshcentral"
+
       - name: Download Cloudflare Tunnel
         shell: pwsh
         run: |
           Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
 
-      - name: Start HTTP Server
-        shell: pwsh
-        run: |
-          Start-Process python -ArgumentList "-m http.server 8080"
-
-      - name: Start Cloudflare HTTPS Tunnel
+      - name: Start HTTPS Tunnel
         shell: pwsh
         run: |
           Write-Host "Starting Cloudflare Tunnel..."
-          .\cloudflared.exe tunnel --url http://localhost:8080
+          .\cloudflared.exe tunnel --url http://localhost:4430
 
       - name: Keep VM Alive
         shell: pwsh
