@@ -1,0 +1,41 @@
+name: Windows-CRD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Prepare system
+        shell: pwsh
+        run: |
+          Write-Host "Preparing Windows VM"
+
+      - name: Install Chrome Remote Desktop
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi -OutFile crd.msi
+          Start-Process msiexec.exe -ArgumentList "/i crd.msi /quiet /norestart" -Wait
+
+      - name: Show instructions
+        shell: pwsh
+        run: |
+          Write-Host ""
+          Write-Host "OPEN THIS PAGE:"
+          Write-Host "https://remotedesktop.google.com/headless"
+          Write-Host ""
+          Write-Host "Login and copy the WINDOWS command."
+          Write-Host "Run that command inside this runner if needed."
+          Write-Host ""
+
+      - name: Keep VM Alive
+        shell: pwsh
+        run: |
+          Write-Host "VM running for about 6 hours"
+          $end = (Get-Date).AddHours(6)
+          while((Get-Date) -lt $end){
+              Start-Sleep -Seconds 60
+          }
