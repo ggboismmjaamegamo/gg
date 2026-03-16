@@ -21,7 +21,7 @@ jobs:
       - name: Download Playit
         shell: pwsh
         run: |
-          Invoke-WebRequest https://github.com/playit-cloud/playit-agent/releases/download/v0.15.14/playit-windows-amd64.exe -OutFile playit.exe
+          Invoke-WebRequest https://playit.gg/downloads/playit-windows-amd64.exe -OutFile playit.exe
 
       - name: Start Playit tunnel
         shell: pwsh
