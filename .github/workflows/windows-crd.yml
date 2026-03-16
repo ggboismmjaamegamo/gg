@@ -9,7 +9,7 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Prepare system
+      - name: Prepare Windows VM
         shell: pwsh
         run: |
           Write-Host "Preparing Windows VM"
@@ -20,16 +20,10 @@ jobs:
           Invoke-WebRequest https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi -OutFile crd.msi
           Start-Process msiexec.exe -ArgumentList "/i crd.msi /quiet /norestart" -Wait
 
-      - name: Show instructions
+      - name: Start Chrome Remote Desktop
         shell: pwsh
         run: |
-          Write-Host ""
-          Write-Host "OPEN THIS PAGE:"
-          Write-Host "https://remotedesktop.google.com/headless"
-          Write-Host ""
-          Write-Host "Login and copy the WINDOWS command."
-          Write-Host "Run that command inside this runner if needed."
-          Write-Host ""
+          & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="4/0AfrIepAjByLOh53l4zcMlOJiBu-aGrLiT9Mi8Xu-O8oZvkmeic8UEcS9HSRCMc4XEb7IGA" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$Env:COMPUTERNAME
 
       - name: Keep VM Alive
         shell: pwsh
