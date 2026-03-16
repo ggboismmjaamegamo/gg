@@ -1,7 +1,6 @@
-name: Windows-RDP
+name: Windows-CRD
 
-on:
-  workflow_dispatch:
+on: workflow_dispatch
 
 jobs:
   build:
@@ -9,20 +8,21 @@ jobs:
     timeout-minutes: 360
 
     steps:
-    - name: Enable RDP
-      run: |
-        net user runneradmin Password123!
-        net localgroup administrators runneradmin /add
-        reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
-        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+      - name: Download Chrome Remote Desktop
+        run: |
+          Invoke-WebRequest https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi -OutFile crd.msi
+          Start-Process msiexec.exe -ArgumentList '/i crd.msi /quiet /norestart' -Wait
 
-    - name: Show RDP Info
-      run: |
-        echo "USERNAME: GOD OF GAMERZ"
-        echo "PASSWORD: GOD OF GAMERZ"
-        ipconfig
+      - name: Install Chrome
+        run: |
+          Invoke-WebRequest https://www.google.com/chrome/business/ -OutFile chrome.exe
+          Start-Process chrome.exe -ArgumentList '/silent /install' -Wait
 
-    - name: Keep VM Alive
-      run: |
-        echo "VM running for 6 hours"
-        timeout /t 21600
+      - name: Start Chrome Remote Desktop
+        run: |
+          echo "Paste your CRD command in next step"
+
+      - name: Keep VM Alive
+        run: |
+          echo "VM running for 6 hours"
+          Start-Sleep -Seconds 21600
