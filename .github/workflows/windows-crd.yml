@@ -1,4 +1,4 @@
-name: Windows-CRD
+name: Windows-HTTPS
 
 on:
   workflow_dispatch:
@@ -9,21 +9,28 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Prepare Windows VM
-        shell: pwsh
-        run: |
-          Write-Host "Preparing Windows VM"
-
       - name: Install Chrome Remote Desktop
         shell: pwsh
         run: |
           Invoke-WebRequest https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi -OutFile crd.msi
           Start-Process msiexec.exe -ArgumentList "/i crd.msi /quiet /norestart" -Wait
 
-      - name: Start Chrome Remote Desktop
+      - name: Download Cloudflare Tunnel
         shell: pwsh
         run: |
-          & "${Env:PROGRAMFILES(X86)}\Google\Chrome Remote Desktop\CurrentVersion\remoting_start_host.exe" --code="4/0AfrIepAjByLOh53l4zcMlOJiBu-aGrLiT9Mi8Xu-O8oZvkmeic8UEcS9HSRCMc4XEb7IGA" --redirect-url="https://remotedesktop.google.com/_/oauthredirect" --name=$Env:COMPUTERNAME
+          Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
+
+      - name: Start HTTPS Tunnel
+        shell: pwsh
+        run: |
+          Start-Process -NoNewWindow -FilePath .\cloudflared.exe -ArgumentList "tunnel --url http://localhost:3389"
+
+      - name: Show HTTPS Link
+        shell: pwsh
+        run: |
+          Write-Host "Wait 20 seconds for Cloudflare tunnel..."
+          Start-Sleep 20
+          Write-Host "HTTPS tunnel should now be active."
 
       - name: Keep VM Alive
         shell: pwsh
