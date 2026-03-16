@@ -1,4 +1,4 @@
-name: Windows-HTTPS
+name: Windows-Web-Desktop
 
 on:
   workflow_dispatch:
@@ -10,32 +10,32 @@ jobs:
 
     steps:
 
-      - name: Prepare Windows
+      - name: Enable RDP
         shell: pwsh
         run: |
-          Write-Host "Preparing Windows VM"
-
-      - name: Install Chrome Remote Desktop
-        shell: pwsh
-        run: |
-          Invoke-WebRequest https://dl.google.com/edgedl/chrome-remote-desktop/chromeremotedesktophost.msi -OutFile crd.msi
-          Start-Process msiexec.exe -ArgumentList "/i crd.msi /quiet /norestart" -Wait
+          net user gamer gamer123 /add
+          net localgroup administrators gamer /add
+          reg add "HKLM\System\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
       - name: Download Cloudflare Tunnel
         shell: pwsh
         run: |
           Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
 
+      - name: Start Web Gateway
+        shell: pwsh
+        run: |
+          python -m http.server 8080
+
       - name: Start HTTPS Tunnel
         shell: pwsh
         run: |
-          Write-Host "Starting Cloudflare Tunnel..."
-          .\cloudflared.exe tunnel --url http://localhost:3389
+          .\cloudflared.exe tunnel --url http://localhost:8080
 
       - name: Keep VM Alive
         shell: pwsh
         run: |
-          Write-Host "VM running for about 6 hours"
           $end = (Get-Date).AddHours(6)
           while((Get-Date) -lt $end){
               Start-Sleep -Seconds 60
